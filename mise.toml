@@ -1,0 +1,7 @@
+[tools]
+azure-cli = { version = "latest", uvx_args = "--prerelease=allow" }
+helm = "latest"
+kubectl = "latest"
+opentofu = "latest"
+pipx = "latest"
+terraform-docs = "latest"

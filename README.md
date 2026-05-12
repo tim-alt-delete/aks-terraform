@@ -1,69 +1,13 @@
 # Dependencies
 
-Choose either method to install terraform
-
-## Install tofuenv
-```bash
-git clone https://github.com/tofuutils/tofuenv.git ~/.tofuenv
-export PATH="$HOME/.tofuenv/bin:$PATH"
-tofuenv --version
-```
-
-Install opentofu
-
-```bash
-tofuenv install latest
-# or specific version
-tofuenv install 1.10.2
-# list/use installed versions
-tofuenv list
-tofuenv use 1.10.2
-tofu version
-```
-
 ## Mise
+Install Mise
 ```bash
 brew install mise # mac
 curl https://mise.run | sh # linux
 ```
 
-Add to your `~/.*rc` file
-```bash
-eval "$(mise activate bash)" # bash
-eval "$(mise activate zsh)" # zsh
-```
-
-Install OpenTofu
-```bash
-mise use -g opentofu@latest
-mise use -g opentofu@1.10.2
-```
-
-Common Commands
-```bash
-# list installed tools
-mise ls
-
-# install everything from `mise.toml`
-mise install
-
-# upgrade tools
-mise upgrade
-
-# show active versions
-mise current
-
-# show installation locations
-mise which <tool>
-
-# check config
-mise config
-
-# check mise health
-mise doctor
-```
-
-### Install Common Packages
+Install common packages
 ```bash
 # To use pipx packages with mise, you need to install pipx first:
 mise use pipx@latest
@@ -74,8 +18,83 @@ mise use azure-cli
 mise use terraform-docs
 ```
 
-# Create Azure Serivce Principal
+# Create Azure Service Principal
 
+## (Option 1) CI/CD Federated Identity / OIDC
+This is the modern approach for:
+
+* GitHub Actions
+* GitLab CI
+* Azure DevOps
+* Terraform Cloud
+
+Use this to give github actions permission to deploy resources in azure:
+
+```bash
+# create app and service principal
+az ad app create \
+  --display-name "tofu-ci"
+
+APP_ID=$(az ad app list \
+  --display-name "tofu-ci" \
+  --query "[0].appId" -o tsv)
+
+az ad sp create --id $APP_ID
+
+SUB_ID=$(az account show --query id -o tsv)
+
+# grant contributor to a single resource group
+az role assignment create \
+  --assignee $APP_ID \
+  --role Contributor \
+  --scope /subscriptions/$SUB_ID/resourceGroups/rg-private-aks-test
+
+
+# Also don't forget to grant permission to TF Backend
+az role assignment create \
+  --assignee $APP_ID \
+  --role Contributor \
+  --scope /subscriptions/$SUB_ID/resourceGroups/rg-tfm-backend-test
+
+# or a single subscription (broader permissions)
+# az role assignment create \
+#   --assignee $APP_ID \
+#   --role Contributor \
+#   --scope /subscriptions/$SUB_ID
+
+# Add github OIDC federation
+az ad app federated-credential create \
+  --id $APP_ID \
+  --parameters '{
+    "name":"github-main",
+    "issuer":"https://token.actions.githubusercontent.com",
+    "subject":"repo:tim-alt-delete/aks-terrform:ref:refs/heads/main",
+    "audiences":["api://AzureADTokenExchange"]
+  }'
+```
+
+## (Option 2) 
+Simpler initially, but you must store/rotate secrets.
+
+```bash
+az ad sp create-for-rbac \
+  --name "tofu-ci" \
+  --role Contributor \
+  --scopes /subscriptions/<SUB_ID> \
+  --json-auth
+```
+
+Store these secrets securely. This outputs:
+```json
+{
+  "clientId": "...",
+  "clientSecret": "...",
+  "subscriptionId": "...",
+  "tenantId": "..."
+}
+```
+
+## Verify Auth Works
 ```bash
 export ARM_CLIENT_ID=...
 export ARM_CLIENT_SECRET=...
@@ -84,6 +103,8 @@ export ARM_TENANT_ID=...
 
 tofu plan
 ```
+
+Store these secrets securely.
 
 # Private AKS Cluster Example
 
