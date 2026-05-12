@@ -68,10 +68,31 @@ az ad app federated-credential create \
   --parameters '{
     "name":"github-main",
     "issuer":"https://token.actions.githubusercontent.com",
-    "subject":"repo:tim-alt-delete/aks-terrform:ref:refs/heads/main",
+    "subject":"repo:tim-alt-delete/aks-terraform:ref:refs/heads/main",
+    "audiences":["api://AzureADTokenExchange"]
+  }'
+
+# Federate for pull requests
+az ad app federated-credential create \
+  --id $APP_ID \
+  --parameters '{
+    "name":"github-pr",
+    "issuer":"https://token.actions.githubusercontent.com",
+    "subject":"repo:tim-alt-delete/aks-terraform:pull_request",
+    "audiences":["api://AzureADTokenExchange"]
+  }'
+
+# Add production environment
+az ad app federated-credential create \
+  --id $APP_ID \
+  --parameters '{
+    "name":"github-prod",
+    "issuer":"https://token.actions.githubusercontent.com",
+    "subject":"repo:tim-alt-delete/aks-terraform:pull_request:environment:production",
     "audiences":["api://AzureADTokenExchange"]
   }'
 ```
+
 
 ## (Option 2) 
 Simpler initially, but you must store/rotate secrets.
