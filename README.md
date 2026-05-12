@@ -53,8 +53,8 @@ az role assignment create \
 # Also don't forget to grant permission to TF Backend
 az role assignment create \
   --assignee $APP_ID \
-  --role Contributor \
-  --scope /subscriptions/$SUB_ID/resourceGroups/rg-tfm-backend-test
+  --role "Storage Blob Data Contributor" \
+  --scope /subscriptions/$SUB_ID/resourceGroups/rg-tfm-backend-test/providers/Microsoft.Storage/storageAccounts/satfmbackendtest0123/blobServices/default/containers/tfmstate
 
 # or a single subscription (broader permissions)
 # az role assignment create \
@@ -130,3 +130,12 @@ Store these secrets securely.
 # Private AKS Cluster Example
 
 https://registry.terraform.io/modules/Azure/avm-res-containerservice-managedcluster/azurerm/latest/examples/private# aks-terraform
+
+
+
+
+
+jobs:
+  apply:
+    environment:
+      name: production

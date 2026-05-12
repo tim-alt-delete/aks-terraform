@@ -50,10 +50,10 @@ az storage account blob-service-properties update \
 
 # create blob container
 # STORAGE_ACCOUNT_ACCESS_KEY=$(az storage account keys list --account-name $STORAGE_ACCOUNT_NAME --query "[0].value")
-# az storage container create \
-#     --name tfmstate \
-#     --account-name $STORAGE_ACCOUNT_NAME \
-#     --account-key $STORAGE_ACCOUNT_ACCESS_KEY
+az storage container create \
+    --name tfmstate \
+    --account-name $STORAGE_ACCOUNT_NAME \
+    --account-key $STORAGE_ACCOUNT_ACCESS_KEY
 
 # (Optional) Create Keyvault to host Storage Account keys
 # az keyvault create --resource-group tfm-backend-rg \
