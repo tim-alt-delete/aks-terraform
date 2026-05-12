@@ -16,6 +16,7 @@ jobs:
 
     env:
       TF_IN_AUTOMATION: true
+      ARM_USE_OIDC: true
 
     steps:
       - name: Checkout
