@@ -18,9 +18,9 @@ mise use azure-cli
 mise use terraform-docs
 ```
 
-# Create Azure Service Principal
+# CI/CD Federated Identity / OIDC
 
-## (Option 1) CI/CD Federated Identity / OIDC
+## Create Azure App and Service Principal
 This is the modern approach for:
 
 * GitHub Actions
@@ -62,6 +62,23 @@ az role assignment create \
 #   --role Contributor \
 #   --scope /subscriptions/$SUB_ID
 
+# Verify the role assignments
+az role assignment list \
+  --assignee $APP_ID \      
+  --all \
+--output table
+
+```
+
+Store the following as github secrets:
+
+* `AZURE_CLIENT_ID`
+* `AZURE_SUBSCRIPTION_ID`
+* `AZURE_TENANT_ID`
+
+## Create OIDC Federation
+
+```bash
 # Add github OIDC federation
 az ad app federated-credential create \
   --id $APP_ID \
@@ -93,38 +110,6 @@ az ad app federated-credential create \
   }'
 ```
 
-
-## (Option 2) 
-Simpler initially, but you must store/rotate secrets.
-
-```bash
-az ad sp create-for-rbac \
-  --name "tofu-ci" \
-  --role Contributor \
-  --scopes /subscriptions/<SUB_ID> \
-  --json-auth
-```
-
-Store these secrets securely. This outputs:
-```json
-{
-  "clientId": "...",
-  "clientSecret": "...",
-  "subscriptionId": "...",
-  "tenantId": "..."
-}
-```
-
-## Verify Auth Works
-```bash
-export ARM_CLIENT_ID=...
-export ARM_CLIENT_SECRET=...
-export ARM_SUBSCRIPTION_ID=...
-export ARM_TENANT_ID=...
-
-tofu plan
-```
-
 Store these secrets securely.
 
 # Private AKS Cluster Example
@@ -132,6 +117,18 @@ Store these secrets securely.
 https://registry.terraform.io/modules/Azure/avm-res-containerservice-managedcluster/azurerm/latest/examples/private# aks-terraform
 
 
+# Additional Resources
+
+Github / Azure Authentication:
+https://learn.microsoft.com/en-us/azure/developer/github/github-actions
+
+OIDC 
+https://learn.microsoft.com/en-us/azure/developer/github/github-actions
+
+Terraform examples:
+https://github.com/Azure/actions-workflow-samples/tree/master/Terraform
+
+https://github.com/Azure/terraform/tree/master/quickstart
 
 
 
