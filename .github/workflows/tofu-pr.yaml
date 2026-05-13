@@ -45,6 +45,12 @@ jobs:
     # - name: OpenTofu Format Check
     #   run: tofu fmt -check -recursive
 
+
+    - name: Set Azure AD Auth for OpenTofu
+      run: |
+        export ARM_USE_AZUREAD_AUTH=true
+        echo "ARM_USE_AZUREAD_AUTH=$ARM_USE_AZUREAD_AUTH"
+        
     - name: OpenTofu Init
       run: tofu init
 
