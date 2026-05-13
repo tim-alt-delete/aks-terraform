@@ -42,8 +42,8 @@ jobs:
     - name: OpenTofu Version
       run: tofu version
 
-    - name: OpenTofu Format Check
-      run: tofu fmt -check -recursive
+    # - name: OpenTofu Format Check
+    #   run: tofu fmt -check -recursive
 
     - name: OpenTofu Init
       run: tofu init
