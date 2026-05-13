@@ -5,11 +5,16 @@ on:
     branches:
       - main
 
-permissions:
-  id-token: write # Require write permission to Fetch an OIDC token.
+# permissions:
+#   id-token: write # Require write permission to Fetch an OIDC token.
   # contents: read
   # pull-requests: write
+jobs: 
+  test:
+    permissions:
+      id-token: write # Require write permission to Fetch an OIDC token.
 
+    runs-on: ubuntu-latest
     steps:
     - name: Azure CLI Login
       uses: azure/login@v2
