@@ -15,7 +15,7 @@ terraform {
   backend "azurerm" {
     resource_group_name  = "rg-tfm-backend-test"
     storage_account_name = "satfmbackendtest0123"
-    container_name       = "tfstate"
+    container_name       = "tfmstate"
     key                  = "test.aks.tfstate"
     use_azuread_auth = true
   }
