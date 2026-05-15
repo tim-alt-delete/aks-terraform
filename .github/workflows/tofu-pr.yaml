@@ -16,7 +16,6 @@ jobs:
 
     runs-on:
       group: azure-github-demo
-      labels: azure-github-demo
     # runs-on: azure-github-demo # ubuntu-latest
     steps:
     - name: Azure CLI Login
