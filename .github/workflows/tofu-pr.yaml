@@ -14,7 +14,7 @@ jobs:
     permissions:
       id-token: write # Require write permission to Fetch an OIDC token.
 
-    runs-on: ubuntu-latest
+    runs-on: azure-github-demo # ubuntu-latest
     steps:
     - name: Azure CLI Login
       uses: azure/login@v2
