@@ -39,7 +39,7 @@ jobs:
     - name: Setup OpenTofu
       uses: opentofu/setup-opentofu@v2
       with:
-        tofu_version: latest
+        tofu_version: 1.12.0
 
     - name: OpenTofu Version
       id: version
@@ -67,12 +67,17 @@ jobs:
         directory: environments/test
         framework: terraform
         output_format: cli,sarif
+        output_file_path: checkov_results.sarif
 
     - name: Upload SARIF file
-      uses: github/codeql-action/upload-sarif@v3
       if: always()
+      uses: github/codeql-action/upload-sarif@v4
       with:
-        sarif_file: results.sarif
+        sarif_file: checkov_results.sarif
+
+    - name: Fail if Checkov failed
+      if: steps.checkov.outcome == 'failure'
+      run: exit 1
 
     - name: OpenTofu Plan
       id: plan
