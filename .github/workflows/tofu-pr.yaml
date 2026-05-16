@@ -40,6 +40,8 @@ jobs:
       uses: opentofu/setup-opentofu@v1
       with:
         tofu_version: latest
+        #https://github.com/orgs/opentofu/discussions/2493
+        tofu_wrapper: false 
 
     - name: OpenTofu Version
       run: tofu version
@@ -48,7 +50,7 @@ jobs:
       run: tofu init
 
     - name: OpenTofu Format Check
-      run: tofu fmt -check -recursive
+      run: tofu fmt -check -recursive -no-color
       #run: tofu fmt -write=false -recursive
 
     - name: OpenTofu Validate
