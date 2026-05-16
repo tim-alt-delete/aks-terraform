@@ -1,0 +1,95 @@
+name: OpenTofu PR Checks
+
+on:
+  pull_request:
+    branches:
+      - main
+
+# permissions:
+#   id-token: write # Require write permission to Fetch an OIDC token.
+  # contents: read
+  # pull-requests: write
+jobs: 
+  test:
+    permissions:
+      id-token: write # Require write permission to Fetch an OIDC token.
+
+    runs-on:
+      group: azure-github-demo
+
+    steps:
+    - name: Azure CLI Login
+      uses: azure/login@v2
+      with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  
+    - name: Verify Azure Login
+      uses: azure/cli@v2
+      with:
+        azcliversion: latest
+        inlineScript: |
+          az account show
+          # You can write your Azure CLI inline scripts here.
+
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup OpenTofu
+      uses: opentofu/setup-opentofu@v2
+      with:
+        tofu_version: 1.12.0
+
+    - name: OpenTofu Version
+      id: version
+      run: tofu version
+
+    - name: OpenTofu Format Check
+      id: fmt
+      run: tofu fmt -diff -check -recursive -no-color
+      working-directory: environments/test
+      continue-on-error: true
+
+    - name: OpenTofu Init
+      id: init
+      run: tofu init
+      working-directory: environments/test
+
+    - name: OpenTofu Validate
+      id: validate
+      run: tofu validate -no-color
+      working-directory: environments/test
+
+    - name: Checkov
+      uses: bridgecrewio/checkov-action@master
+      with:
+        directory: environments/test
+        framework: terraform
+        output_format: cli,sarif
+        output_file_path: checkov_results.sarif
+
+    - name: Upload SARIF file
+      if: always()
+      uses: github/codeql-action/upload-sarif@v4
+      with:
+        sarif_file: checkov_results.sarif
+
+    - name: Fail if Checkov failed
+      if: steps.checkov.outcome == 'failure'
+      run: exit 1
+
+    - name: OpenTofu Plan
+      id: plan
+      working-directory: environments/test
+      run: tofu plan -no-color
+      continue-on-error: true
+
+    - name: Format Failed
+      if: steps.fmt.outcome == 'failure'
+      run: exit 1
+
+    - name: Plan Failed
+      if: steps.plan.outcome == 'failure'
+      run: exit 1
+
