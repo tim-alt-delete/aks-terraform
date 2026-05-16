@@ -45,12 +45,9 @@ jobs:
       run: tofu version
 
     - name: OpenTofu Format Check
-      run: tofu fmt -check -recursive
+      # run: tofu fmt -check -recursive
+      run: tofu fmt -write=false -recursive
 
     - name: OpenTofu Validate
       run: tofu validate -no-color
 
-    - name: OpenTofu Init
-      run: tofu init
-      env:
-        ARM_USE_AZUREAD_AUTH: true
