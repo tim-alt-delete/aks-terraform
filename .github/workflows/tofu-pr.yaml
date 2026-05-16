@@ -48,15 +48,18 @@ jobs:
     - name: OpenTofu Format Check
       id: fmt
       run: tofu fmt -diff -check -recursive -no-color
+      working-directory: environments/test
       continue-on-error: true
 
     - name: OpenTofu Init
       id: init
       run: tofu init
+      working-directory: environments/test
 
     - name: OpenTofu Validate
       id: validate
       run: tofu validate -no-color
+      working-directory: environments/test
 
     - name: Checkov
       uses: bridgecrewio/checkov-action@master
@@ -66,13 +69,15 @@ jobs:
         output_format: cli,sarif
 
     - name: Upload SARIF file
-      uses: github/codeql-action/upload-sarif@v2
+      uses: github/codeql-action/upload-sarif@v3
+      working-directory: environments/test
       if: always()
       with:
         sarif_file: results.sarif
 
     - name: OpenTofu Plan
       id: plan
+      working-directory: environments/test
       run: tofu plan -no-color
       continue-on-error: true
 
