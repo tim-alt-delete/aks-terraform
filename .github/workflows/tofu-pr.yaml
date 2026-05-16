@@ -16,7 +16,11 @@ jobs:
 
     runs-on:
       group: azure-github-demo
-    # runs-on: azure-github-demo # ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: environments/test
+
     steps:
     - name: Azure CLI Login
       uses: azure/login@v2
@@ -47,7 +51,7 @@ jobs:
 
     - name: OpenTofu Format Check
       id: fmt
-      run: tofu fmt -check -recursive -no-color
+      run: tofu fmt -diff -check -recursive -no-color
       continue-on-error: true
 
     - name: OpenTofu Init
@@ -58,8 +62,29 @@ jobs:
       id: validate
       run: tofu validate -no-color
 
+    - name: Checkov
+      uses: bridgecrewio/checkov-action@master
+      with:
+        directory: environments/test
+        framework: terraform
+        output_format: cli,sarif
+
+    - name: Upload SARIF file
+      uses: github/codeql-action/upload-sarif@v2
+      if: always()
+      with:
+        sarif_file: results.sarif
+
     - name: OpenTofu Plan
       id: plan
       run: tofu plan -no-color
       continue-on-error: true
+
+    - name: Format Failed
+      if: steps.fmt.outcome == 'failure'
+      run: exit 1
+
+    - name: Plan Failed
+      if: steps.plan.outcome == 'failure'
+      run: exit 1
 
