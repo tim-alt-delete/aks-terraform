@@ -138,7 +138,7 @@ resource "random_string" "dns_prefix" {
 data "azurerm_client_config" "current" {}
 
 module "private" {
-  source = "Azure/avm-res-containerservice-managedcluster/azurerm"
+  source  = "Azure/avm-res-containerservice-managedcluster/azurerm"
   version = "0.5.4"
 
   location  = azurerm_resource_group.this.location
