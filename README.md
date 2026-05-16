@@ -85,7 +85,7 @@ az ad app federated-credential create \
   --parameters '{
     "name":"github-main",
     "issuer":"https://token.actions.githubusercontent.com",
-    "subject":"repo:tim-alt-delete/aks-terraform:ref:refs/heads/main",
+    "subject":"repo:tim-pulliam/aks-terraform:ref:refs/heads/main",
     "audiences":["api://AzureADTokenExchange"]
   }'
 
@@ -95,7 +95,7 @@ az ad app federated-credential create \
   --parameters '{
     "name":"github-pr",
     "issuer":"https://token.actions.githubusercontent.com",
-    "subject":"repo:tim-alt-delete/aks-terraform:pull_request",
+    "subject":"repo:tim-pulliam/aks-terraform:pull_request",
     "audiences":["api://AzureADTokenExchange"]
   }'
 
@@ -105,12 +105,54 @@ az ad app federated-credential create \
   --parameters '{
     "name":"github-prod",
     "issuer":"https://token.actions.githubusercontent.com",
-    "subject":"repo:tim-alt-delete/aks-terraform:pull_request:environment:production",
+    "subject":"repo:tim-pulliam/aks-terraform:pull_request:environment:production",
     "audiences":["api://AzureADTokenExchange"]
   }'
 ```
 
-Store these secrets securely.
+# Private Azure Network
+https://docs.github.com/en/organizations/managing-organization-settings/configuring-private-networking-for-github-hosted-runners-in-your-organization
+
+You will need:
+* Github Organization (requires team plan)
+* Github Personal Access Token Classic to get Github DatabaseID
+
+## Save Network Security Group
+https://docs.github.com/en/organizations/managing-organization-settings/configuring-private-networking-for-github-hosted-runners-in-your-organization#configuring-your-azure-resources
+
+To allow github to talk to a private Azure network, first save the nsg to a file `actions-nsg-deployment.bicep`. 
+
+
+## Get Github DatabaseID
+https://docs.github.com/en/organizations/managing-organization-settings/configuring-private-networking-for-github-hosted-runners-in-your-organization#2-use-a-script-to-configure-your-azure-resources
+
+You will need to create a Github Personal Access Token (Classic). 
+
+https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-personal-access-token-classic
+
+Give your token `read:org` permissions to query graphql for your github DatabaseID. Replace `BEARER_TOKEN` with your PAT.
+
+```bash
+curl -H "Authorization: Bearer BEARER_TOKEN" -X POST \
+  -d '{ "query": "query($login: String!) { organization (login: $login) { login databaseId } }" ,
+        "variables": {
+          "login": "ORGANIZATION_NAME"
+        }
+      }' \
+https://api.github.com/graphql
+```
+
+## Create Azure Private Network Resources
+https://docs.github.com/en/organizations/managing-organization-settings/configuring-private-networking-for-github-hosted-runners-in-your-organization#2-use-a-script-to-configure-your-azure-resources 
+
+Save the script in the same location you saved the NSG template file.
+
+The script will output `GitHubId`. Save the value for the next step.
+
+
+# Create Network Configuration in Github Org
+
+https://docs.github.com/en/organizations/managing-organization-settings/configuring-private-networking-for-github-hosted-runners-in-your-organization#1-add-a-new-network-configuration-for-your-organization
 
 # Private AKS Cluster Example
 
@@ -130,7 +172,10 @@ https://github.com/Azure/actions-workflow-samples/tree/master/Terraform
 
 https://github.com/Azure/terraform/tree/master/quickstart
 
+Private networking with GitHub-hosted runners
+https://docs.github.com/en/actions/concepts/runners/private-networking
 
+https://docs.github.com/en/organizations/managing-organization-settings/configuring-private-networking-for-github-hosted-runners-in-your-organization
 
 jobs:
   apply:

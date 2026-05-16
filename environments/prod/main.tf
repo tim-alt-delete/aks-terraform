@@ -17,7 +17,7 @@ terraform {
     storage_account_name = "satfmbackendtest0123"
     container_name       = "tfmstate"
     key                  = "test.aks.tfstate"
-    use_azuread_auth = true
+    use_azuread_auth     = true
   }
 }
 

@@ -17,10 +17,6 @@ jobs:
     runs-on:
       group: azure-github-demo
 
-    defaults:
-      run:
-        working-directory: environments/test
-
     steps:
     - name: Azure CLI Login
       uses: azure/login@v2

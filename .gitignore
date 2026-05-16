@@ -1,1 +1,3 @@
 .terraform/
+actions-nsg-deployment.bicep
+azure-private-net.sh

@@ -37,6 +37,13 @@ jobs:
 
       - name: OpenTofu Init
         run: tofu init
+        env:
+          ARM_USE_AZUREAD_AUTH: true
+
+      - name: OpenTofu Plan
+        run: tofu plan -out=tfplan -no-color
 
       - name: OpenTofu Apply
         run: tofu apply -auto-approve
+        env:
+          ARM_USE_AZUREAD_AUTH: true

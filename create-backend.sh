@@ -49,16 +49,10 @@ az storage account blob-service-properties update \
     --resource-group $RESOURCE_GROUP_NAME
 
 # create blob container
-# STORAGE_ACCOUNT_ACCESS_KEY=$(az storage account keys list --account-name $STORAGE_ACCOUNT_NAME --query "[0].value")
 az storage container create \
     --name tfmstate \
     --account-name $STORAGE_ACCOUNT_NAME \
     --account-key $STORAGE_ACCOUNT_ACCESS_KEY
-
-# (Optional) Create Keyvault to host Storage Account keys
-# az keyvault create --resource-group tfm-backend-rg \
-#     --enable-purge-protection true \
-#     --enable
 
 # Add the following to your main.tf file (uncommented)
 # terraform {

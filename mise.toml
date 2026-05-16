@@ -1,5 +1,6 @@
 [tools]
 azure-cli = { version = "latest", uvx_args = "--prerelease=allow" }
+checkov = "latest"
 helm = "latest"
 kubectl = "latest"
 opentofu = "latest"
